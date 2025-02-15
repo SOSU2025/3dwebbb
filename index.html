@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js モデルクリック + 星エフェクト</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden;
+            background: radial-gradient(circle, #001f3f 20%, #004080 80%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            position: relative;
+        }
+        #click-text {
+            position: absolute;
+            bottom: 20px;
+            font-size: 26px;
+            font-weight: bold;
+            color: #00ccff;
+            font-family: 'Arial', sans-serif;
+            text-shadow: 2px 2px 8px rgba(0, 204, 255, 0.8);
+            animation: glow 1.5s infinite alternate;
+        }
+        @keyframes glow {
+            0% { opacity: 1; text-shadow: 2px 2px 8px rgba(0, 204, 255, 1); }
+            100% { opacity: 0.5; text-shadow: 2px 2px 15px rgba(0, 204, 255, 0.3); }
+        }
+        #whiteout {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+            transition: transform 1.2s ease-out, opacity 1.2s ease-in;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div id="click-text">Click me!</div>
+    <div id="whiteout"></div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.150.1/build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
+        import { GLTFLoader } from 'https://unpkg.com/three@0.150.1/examples/jsm/loaders/GLTFLoader.js';
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 5, 30);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const light = new THREE.AmbientLight(0xffffff, 2);
+        scene.add(light);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        const loader = new GLTFLoader();
+        const modelURL = "https://raw.githubusercontent.com/SOSU2025/my-3d-models/main/aaaa.glb";
+
+        let model;
+        loader.load(modelURL, (gltf) => {
+            model = gltf.scene;
+            model.position.set(0, -10, 0);
+            model.scale.set(15, 15, 15);
+            scene.add(model);
+        });
+
+        // 🌟 星エフェクトを追加 🌟
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsCount = 500;
+        const positions = new Float32Array(starsCount * 3);
+
+        for (let i = 0; i < starsCount * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 200;
+        }
+
+        starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.5 });
+        const stars = new THREE.Points(starsGeometry, starsMaterial);
+        scene.add(stars);
+
+        let isSpinning = false;
+        let spinSpeed = 0.005;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (model) model.rotation.y += spinSpeed;
+            stars.rotation.y += 0.0005;
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('click', () => {
+            if (model && !isSpinning) {
+                document.getElementById("click-text").style.display = "none";
+                isSpinning = true;
+                spinSpeed = 0.2;
+                startWhiteoutEffect();
+                accelerateStars();
+            }
+        });
+
+        function startWhiteoutEffect() {
+            const whiteout = document.getElementById("whiteout");
+            whiteout.style.opacity = "1";
+            whiteout.style.transform = "translate(-50%, -50%) scale(30)";
+            setTimeout(() => {
+                window.location.href = "https://sosu.theshop.jp/";
+            }, 1200);
+        }
+
+        function accelerateStars() {
+            let speed = 0.0005;
+            let maxSpeed = 0.05;
+            function speedUp() {
+                if (speed < maxSpeed) {
+                    speed *= 1.2;
+                    stars.rotation.y += speed;
+                    requestAnimationFrame(speedUp);
+                }
+            }
+            speedUp();
+        }
+
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+
+    </script>
+</body>
+</html>
