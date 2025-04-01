@@ -5,18 +5,23 @@
   <title>SOSU ビデオリンクページ</title>
   <link rel="prefetch" href="https://sosu.theshop.jp/">
   <style>
-    body {
+    html, body {
       margin: 0;
-      overflow: hidden;
-      background: #000;
+      padding: 0;
+      height: 100%;
+      background: #fff;
+    }
+    body {
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      overflow: hidden;
     }
     video {
-      width: 100%;
-      height: auto;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      background: #fff;
     }
     .fade {
       position: fixed;
@@ -45,6 +50,15 @@
   <script>
     const video = document.getElementById('introVideo');
     const fade = document.getElementById('fadeOverlay');
+
+    // iOSなどでも再生開始できるようにする
+    const startVideo = () => {
+      video.play().catch(() => {
+        // ユーザー操作が必要な場合はそのまま待つ
+      });
+    };
+    document.addEventListener('touchstart', startVideo, { once: true });
+    document.addEventListener('click', startVideo, { once: true });
 
     video.addEventListener('ended', () => {
       fade.classList.add('active');
