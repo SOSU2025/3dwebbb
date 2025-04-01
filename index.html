@@ -28,7 +28,7 @@
     }
     @media (max-width: 768px) {
       video {
-        object-fit: contain;
+        display: none;
       }
     }
     @media (min-width: 769px) {
@@ -61,22 +61,27 @@
   <div id="fadeOverlay" class="fade"></div>
 
   <script>
-    const video = document.getElementById('introVideo');
-    const fade = document.getElementById('fadeOverlay');
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    if (isMobile) {
+      window.location.href = 'https://sosu.theshop.jp/';
+    } else {
+      const video = document.getElementById('introVideo');
+      const fade = document.getElementById('fadeOverlay');
 
-    video.addEventListener('ended', () => {
-      fade.classList.add('active');
-      setTimeout(() => {
-        window.location.href = 'https://sosu.theshop.jp/';
-      }, 1000);
-    });
-
-    // 自動再生を JS 側でも試す（少しでも再生成功率を上げる）
-    window.addEventListener('load', () => {
-      video.play().catch((e) => {
-        console.warn('自動再生ブロック:', e);
+      video.addEventListener('ended', () => {
+        fade.classList.add('active');
+        setTimeout(() => {
+          window.location.href = 'https://sosu.theshop.jp/';
+        }, 1000);
       });
-    });
+
+      // 自動再生を JS 側でも試す（少しでも再生成功率を上げる）
+      window.addEventListener('load', () => {
+        video.play().catch((e) => {
+          console.warn('自動再生ブロック:', e);
+        });
+      });
+    }
   </script>
 </body>
 </html>
