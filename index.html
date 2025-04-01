@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>SOSU GIFリンクページ</title>
+  <title>SOSU ビデオリンクページ</title>
   <link rel="prefetch" href="https://sosu.theshop.jp/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
@@ -18,13 +18,13 @@
       align-items: center;
       overflow: hidden;
     }
-    img {
+    video {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       background: #fff;
     }
     .fade {
@@ -45,19 +45,22 @@
   </style>
 </head>
 <body>
-  <img id="introGif" src="https://example.com/your-animation.gif" alt="loading animation">
+  <video id="introVideo" autoplay muted playsinline>
+    <source src="https://github.com/SOSU2025/my-3d-models/raw/refs/heads/main/website_bg_0001-0300.webm" type="video/webm">
+    ビデオを再生できません。
+  </video>
   <div id="fadeOverlay" class="fade"></div>
 
   <script>
+    const video = document.getElementById('introVideo');
     const fade = document.getElementById('fadeOverlay');
 
-    // GIFの再生時間を指定（3秒 = 3000ミリ秒）
-    setTimeout(() => {
+    video.addEventListener('ended', () => {
       fade.classList.add('active');
       setTimeout(() => {
         window.location.href = 'https://sosu.theshop.jp/';
       }, 1000);
-    }, 3000);
+    });
   </script>
 </body>
 </html>
